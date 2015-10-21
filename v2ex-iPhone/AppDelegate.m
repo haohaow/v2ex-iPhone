@@ -7,6 +7,9 @@
 //
 
 #import "AppDelegate.h"
+#import "WHHomeViewController.h"
+#import "WHTestViewController.h"
+#import "WHMacros.h"
 
 @interface AppDelegate ()
 
@@ -16,7 +19,36 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    // Override point for customization after application launch.
+    self.window = [[UIWindow alloc] init];
+    self.window.frame = [UIScreen mainScreen].bounds;
+    [self.window makeKeyAndVisible];
+
+    UIView *launchView = [[NSBundle mainBundle] loadNibNamed:@"LaunchScreen" owner:nil options:nil][0];
+    launchView.frame = self.window.screen.bounds;
+//    UIImageView *imageView = [[UIImageView alloc] initWithFrame:launchView.bounds];
+//    imageView.backgroundColor = WHRandomColor;
+//    [launchView addSubview:imageView];
+//    [self.window addSubview:launchView];
+    UIButton *button = [UIButton buttonWithType:UIButtonTypeContactAdd];
+    button.frame = CGRectMake(100, 100, 100, 100);
+    button.backgroundColor = [UIColor blackColor];
+    [launchView addSubview:button];
+    
+    [self.window bringSubviewToFront:launchView];
+    //测试
+    WHTestViewController *test = [[WHTestViewController alloc] init];
+    test.title = @"测试";
+    UINavigationController *testNav = [[UINavigationController alloc] initWithRootViewController:test];
+    //主页
+    WHHomeViewController *home = [[WHHomeViewController alloc] init];
+    home.title = @"主页";
+    UINavigationController *homeNav = [[UINavigationController alloc] initWithRootViewController:home];
+    
+    UITabBarController *tabBarController = [[UITabBarController alloc] init];
+    tabBarController.viewControllers = @[homeNav,testNav];
+    
+    self.window.rootViewController = tabBarController;
+    
     return YES;
 }
 
