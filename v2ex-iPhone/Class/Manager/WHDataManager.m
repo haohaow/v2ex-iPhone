@@ -9,6 +9,10 @@
 #import "WHDataManager.h"
 #import "WHMacros.h"
 #import <AFNetworking.h>
+#import "HTMLParser.h"
+#import "WHCatalogModel.h"
+#define API_SITEINFO @"api/site/info.json"
+
 typedef enum{
     WHRequestMethodGet = 0,
     WHRequestMethodPost = 1
@@ -16,18 +20,22 @@ typedef enum{
 
 static NSString * const baseURLStr = @"http://www.v2ex.com";
 
-@interface WHDataManager ()
+@implementation WHDataManager
+
 {
     AFHTTPSessionManager *_manager;
+    NSString *_userAgentMobile;
+    NSString *_userAgentPC;
 }
-@end
-
-@implementation WHDataManager
 
 - (instancetype)init
 {
     self = [super init];
     if(self){
+        UIWebView *webView = [[UIWebView alloc]initWithFrame:CGRectZero];
+        _userAgentMobile = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
+        _userAgentPC = @"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/46.0.2490.71 Safari/537.36";
+        
         NSURL *baseURL = [NSURL URLWithString:baseURLStr];
         _manager = [[AFHTTPSessionManager alloc] initWithBaseURL:baseURL];
     }
@@ -65,6 +73,9 @@ static NSString * const baseURLStr = @"http://www.v2ex.com";
     //参数
     NSMutableDictionary *mutableParams = [NSMutableDictionary dictionaryWithDictionary:params];
     //请求
+
+    [_manager.requestSerializer setValue:_userAgentMobile forHTTPHeaderField:@"User-Agent"];
+
     if(method == WHRequestMethodGet){
       [_manager GET:URIString parameters:mutableParams success:^(NSURLSessionDataTask *task, id responseObject) {
           successHandleBlock(task,responseObject);
@@ -90,7 +101,53 @@ static NSString * const baseURLStr = @"http://www.v2ex.com";
     }];
 }
 
+- (void)titleCatalogsSuccess:(void(^)(NSArray *))success
+               failure:(void(^)(NSError *error))failure
+{
+    _manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+    _manager.responseSerializer.acceptableContentTypes = [NSSet setWithObject:@"text/html"];
+    [self requestWithMethod:WHRequestMethodGet URIString:@"" params:nil success:^(NSURLSessionDataTask *task, id responseObject) {
+        NSArray *nodes = [self titleCatalogsWithResponseObject:responseObject];
+        success(nodes);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failure(error);
+    }];
+}
 
+
+#pragma mark private method
+
+- (NSArray *)titleCatalogsWithResponseObject:(id)responseObject
+{
+    NSMutableArray *catalogs = [NSMutableArray array];
+    
+    NSString *htmlString = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
+//    WHLog(@"htmlString:%@",htmlString);
+    NSError *error = nil;
+    HTMLParser *parser = [[HTMLParser alloc] initWithString:htmlString error:&error];
+    if(error){
+        WHLog(@"Error: %@",error);
+    }
+    
+    HTMLNode *bodyNode = [parser body];
+    
+    HTMLNode *wrapperDiv = [bodyNode findChildWithAttribute:@"id" matchingName:@"Wrapper" allowPartial:YES];
+    HTMLNode *contentDiv = [wrapperDiv findChildOfClass:@"content"];
+
+    HTMLNode *cellNode = [contentDiv findChildOfClass:@"cell"];
+    NSArray *aNodes = [cellNode findChildTags:@"a"];
+    
+    [aNodes enumerateObjectsUsingBlock:^(HTMLNode *node, NSUInteger idx, BOOL *stop) {
+        WHCatalogModel *catalog = [[WHCatalogModel alloc] init];
+        catalog.catalogName = [[node getAttributeNamed:@"href"] stringByReplacingOccurrencesOfString:@"/?tab=" withString:@""];
+        catalog.catalogLabel = [node contents];
+//        WHLog(@"node content:%@",[node contents]);
+//        WHLog(@"node name:%@", [[node getAttributeNamed:@"href"] stringByReplacingOccurrencesOfString:@"/?tab=" withString:@""]);
+        [catalogs addObject:catalog];
+    }];
+
+    return catalogs;
+}
 
 
 

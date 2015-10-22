@@ -14,6 +14,9 @@
 
 - (void)siteInfoSuccess:(void (^)(id result))success failure:(void(^)(NSError *error))failure;
 
-- (void)launchImageWithDevice:(NSString *)device success:(void (^)(id result))success failure:(void(^)(NSError *error))failure;
+#pragma mark - Get
+
+- (void)titleCatalogsSuccess:(void(^)(NSArray *))success
+               failure:(void(^)(NSError *error))failure;
 
 @end

@@ -10,4 +10,6 @@
 
 @interface WHHomeViewController : UIViewController
 
+- (instancetype)initWithTitleCatalogs:(NSDictionary *)titleCatalogs;
+
 @end
