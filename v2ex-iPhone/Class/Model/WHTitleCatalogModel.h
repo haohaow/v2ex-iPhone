@@ -9,11 +9,10 @@
 #import <Foundation/Foundation.h>
 
 @interface WHTitleCatalogModel : NSObject
+
 @property (nonatomic,copy) NSString *label;
 @property (nonatomic,copy) NSString *name;
 @property (nonatomic,copy) NSArray *catalogs;
-
-- (instancetype)initWithDictionay:(NSDictionary *)dict;
 
 @end
 

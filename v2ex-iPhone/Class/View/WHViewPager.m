@@ -39,7 +39,6 @@ static const CGFloat titleFontSie = 14;
         self.bounces = NO;
         self.showsHorizontalScrollIndicator = NO;
         self.backgroundColor = [UIColor whiteColor];
-        
         WHViewPageIndicator *pageIndicator = [[WHViewPageIndicator alloc] initWithFrame:CGRectMake(0, 0, 50, 2)];
         [self addSubview:pageIndicator];
         self.pageIndicator = pageIndicator;

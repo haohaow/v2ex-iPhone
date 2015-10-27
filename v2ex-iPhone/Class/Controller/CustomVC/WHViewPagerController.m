@@ -16,11 +16,14 @@
 {
     WHViewPager *_titleView;
     UIScrollView *_scrollView;
-    UIPageViewController *_pageViewController;
-    NSInteger _currentPage;
-    CGFloat _scrollViewContentOffSetX;
-    CGFloat _originWidth;
     BOOL _isDraggingLeft;
+    NSInteger _pageIndex;
+    CGFloat _offsetX;
+    UIButton *_currentButton;
+    UIButton *_nextButtonOnDragging;
+    UIButton *_prevButtonOnDragging;
+    BOOL _isDecelerating;
+    CGFloat _indicatorX;
 }
 
 - (void)setDatasource:(id<WHViewPagerDataSource>)datasource
@@ -81,49 +84,127 @@
 
     [self.view addSubview:_scrollView];
     
-    _originWidth = 50;
+}
+
+- (void)scrollViewWillBeginDecelerating:(UIScrollView *)scrollView
+{
+    //还原
+    _isDecelerating = YES;
 }
 
 - (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
 {
-    WHLog(@"scrollViewWillBeginDragging");
-    CGPoint ori = [scrollView.panGestureRecognizer velocityInView:scrollView];
-    if(ori.x < 0){
-        _isDraggingLeft = NO;
-    }else if (ori.x > 0){
-        _isDraggingLeft = YES;
-    }
+//    CGPoint ori = [scrollView.panGestureRecognizer velocityInView:scrollView];
+//    if(ori.x < 0){
+//        _isDraggingLeft = YES;
+//    }else if (ori.x > 0){
+//        _isDraggingLeft = NO;
+//    }
+    [self setupButtons];
 }
 
--(void)scrollViewDidScroll:(UIScrollView *)scrollView
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
 {
-    //在屏幕上活动的速度
-    CGPoint ori = [scrollView.panGestureRecognizer velocityInView:scrollView];
+    CGFloat offsetX =scrollView.contentOffset.x - _offsetX;
+//    if(scrollView.contentOffset.x>_offsetX){
+//        offsetX = scrollView.contentOffset.x - _offsetX;
+//    }else{
+//        offsetX = _offsetX - scrollView.contentOffset.x;
+//    }
+    WHLog(@"%f",offsetX);
+
+    //位移
+    CGFloat localOffsetX;
+    //放大比例
+    double percent;
+    CGFloat toButtonWidth;
+
+    if(offsetX > 0){
+        localOffsetX = offsetX * (_currentButton.width / _titleView.width);
+        toButtonWidth = _nextButtonOnDragging.width;
+    }else{
+        localOffsetX = offsetX * (_prevButtonOnDragging.width / _titleView.width);
+        toButtonWidth = _prevButtonOnDragging.width;
+    }
+
+//    percent = fabs(((toButtonWidth - _currentButton.width) / _currentButton.width) * (localOffsetX / _currentButton.width));
     
-    CGFloat offsetX = scrollView.contentOffset.x;
-    int pageIndex = offsetX / _scrollView.width + 0.5;
-    NSArray *titles = _titleView.titles;
-    WHLog(@"当前页数：%zi",pageIndex);
-    UIButton *nextButton = titles[pageIndex];
-    //右滑
-    if(!_isDraggingLeft &&  pageIndex<titles.count){
-        WHLog(@"right");
-    }
-    //左滑
-    else if(_isDraggingLeft && pageIndex>0){
-        WHLog(@"left");
-    }
-    //复位
-    else{
-
-    }
-    _titleView.pageIndicator.x = nextButton.x;
-
+    WHLog(@"percent:%f",percent);
+    
+    _titleView.pageIndicator.x = _indicatorX + localOffsetX;
+    
+    _titleView.pageIndicator.transform = CGAffineTransformMakeScale(1 + percent, 1);
 }
+
+//-(void)scrollViewDidScroll:(UIScrollView *)scrollView
+//{
+//    CGFloat offsetX = scrollView.contentOffset.x;
+//    //pageIndex on dragging
+//    int pageIndex = offsetX / _scrollView.width + 0.5;
+//    
+//    _currentButton = _titleView.titles[_pageIndex];
+//    
+//    if(_pageIndex == 0 ){
+//        _prevButtonOnDragging = _currentButton;
+//    }else{
+//        _prevButtonOnDragging = _titleView.titles[_pageIndex - 1];
+//    }
+//    
+//    if(_pageIndex >= _titleView.titles.count){
+//        _nextButtonOnDragging = _currentButton;
+//    }else{
+//        _nextButtonOnDragging = _titleView.titles[_pageIndex + 1];
+//    }
+//    
+//    //indicator还原
+//    if(_isDecelerating && _pageIndex==pageIndex){//放手后，还原
+//        WHLog(@"decelerating");
+//    }else{//拖动时
+//        _isDecelerating = NO;
+//        //indicator向右边移动
+//        if(scrollView.contentOffset.x > _offsetX){
+//            WHLog(@"right");
+//            _titleView.pageIndicator.x += 5;
+//        }
+//        //indicator向左边移动
+//        else if(scrollView.contentOffset.x < _offsetX){
+//            WHLog(@"left");
+//        }
+//    }
+//    
+//}
 
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView
 {
-    WHLog(@"scrollViewDidEndDecelerating");
+    _offsetX = scrollView.contentOffset.x;
+    _isDecelerating = NO;
+    
+    CGFloat offsetX = scrollView.contentOffset.x;
+    //当前页数
+    _pageIndex = offsetX / _scrollView.width + 0.5;
+    
+    [self setupButtons];
+    
+    //当前indicatorX
+    _indicatorX = _currentButton.x;
+    
+}
+
+- (void)setupButtons
+{
+    _currentButton = _titleView.titles[_pageIndex];
+
+    if(_pageIndex == 0 ){
+        _prevButtonOnDragging = _currentButton;
+    }else{
+        _prevButtonOnDragging = _titleView.titles[_pageIndex - 1];
+    }
+
+    if(_pageIndex >= _titleView.titles.count){
+        _nextButtonOnDragging = _currentButton;
+    }else{
+        _nextButtonOnDragging = _titleView.titles[_pageIndex + 1];
+    }
 }
 
 - (void)didReceiveMemoryWarning {

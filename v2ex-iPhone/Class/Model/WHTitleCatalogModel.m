@@ -10,19 +10,8 @@
 
 @implementation WHTitleCatalogModel
 
-- (instancetype)initWithDictionay:(NSDictionary *)dict
-{
-    self = [super init];
-    if(self){
-        self.label = dict[@"catalogLabel"];
-        self.name = dict[@"catalogName"];
-    }
-    return self;
-}
-
 @end
 
 @implementation WHCatalogModel
-
 
 @end
