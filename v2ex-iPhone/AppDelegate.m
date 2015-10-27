@@ -7,45 +7,65 @@
 //
 
 #import "AppDelegate.h"
-#import "WHHomeViewController.h"
-#import "WHTestViewController.h"
 #import "WHMacros.h"
+#import "WHHomeViewController.h"
+#import "WHTopicViewController.h"
+#import "WHFocusViewController.h"
+#import "WHProfileViewController.h"
+#import "WHTitleCatalogModel.h"
+#import "MJExtension.h"
 
 @interface AppDelegate ()
 
 @end
 
 @implementation AppDelegate
-
+{
+//    NSDictionary *_titleCatalogs;
+}
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     self.window = [[UIWindow alloc] init];
     self.window.frame = [UIScreen mainScreen].bounds;
     [self.window makeKeyAndVisible];
-
-    UIView *launchView = [[NSBundle mainBundle] loadNibNamed:@"LaunchScreen" owner:nil options:nil][0];
-    launchView.frame = self.window.screen.bounds;
-//    UIImageView *imageView = [[UIImageView alloc] initWithFrame:launchView.bounds];
-//    imageView.backgroundColor = WHRandomColor;
-//    [launchView addSubview:imageView];
-//    [self.window addSubview:launchView];
-    UIButton *button = [UIButton buttonWithType:UIButtonTypeContactAdd];
-    button.frame = CGRectMake(100, 100, 100, 100);
-    button.backgroundColor = [UIColor blackColor];
-    [launchView addSubview:button];
     
-    [self.window bringSubviewToFront:launchView];
-    //测试
-    WHTestViewController *test = [[WHTestViewController alloc] init];
-    test.title = @"测试";
-    UINavigationController *testNav = [[UINavigationController alloc] initWithRootViewController:test];
-    //主页
+    //    [[WHDataManager sharedManager] titleCatalogsSuccess:^(NSArray *result) {
+    //        WHLog(@"成功：%@",result);
+    //        NSMutableArray *titles = [NSMutableArray array];
+    //        for(WHCatalogModel *catalog in result){
+    //            NSString *catalogLabel = catalog.catalogLabel;
+    //            [titles addObject:catalogLabel];
+    //        }
+    //
+    //        _viewPager = [[WHViewPager alloc] initWithCatalogs:titles];
+    //        [self.view addSubview:_viewPager];
+    //
+    //        self.automaticallyAdjustsScrollViewInsets = NO;
+    //
+    //    } failure:^(NSError *error) {
+    //        WHLog(@"请求失败：%@",error);
+    //    }];
+    
+    
+    //Hot
+    WHTopicViewController *hotTopic = [[WHTopicViewController alloc] init];
+    hotTopic.title = @"热门";
+    UINavigationController *hotTopicNav = [[UINavigationController alloc] initWithRootViewController:hotTopic];
+    //版块
     WHHomeViewController *home = [[WHHomeViewController alloc] init];
-    home.title = @"主页";
+    home.title = @"版块";
     UINavigationController *homeNav = [[UINavigationController alloc] initWithRootViewController:home];
+    //关注
+    WHFocusViewController *focus = [[WHFocusViewController alloc] init];
+    focus.title = @"我的关注";
+    UINavigationController *focusNav = [[UINavigationController alloc] initWithRootViewController:focus];
+    //我
+    WHProfileViewController *profile = [[WHProfileViewController alloc] init];
+    profile.title = @"我";
+    UINavigationController *profileNav = [[UINavigationController alloc] initWithRootViewController:profile];
     
     UITabBarController *tabBarController = [[UITabBarController alloc] init];
-    tabBarController.viewControllers = @[homeNav,testNav];
+    tabBarController.viewControllers = @[homeNav,hotTopicNav,focusNav,profileNav];
     
     self.window.rootViewController = tabBarController;
     

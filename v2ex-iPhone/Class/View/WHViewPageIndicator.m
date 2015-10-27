@@ -19,18 +19,20 @@
     self = [super initWithFrame:frame];
     if(self){
         _indicatorView = [[UIView alloc] initWithFrame:frame];
-        _indicatorView.backgroundColor = WHRandomColor;
+//        _indicatorView.backgroundColor = WHColor(104, 104, 104);
+        _indicatorView.backgroundColor = [UIColor redColor];
         [self addSubview:_indicatorView];
     }
     return self;
 }
 
-/*
+
 // Only override drawRect: if you perform custom drawing.
 // An empty implementation adversely affects performance during animation.
-- (void)drawRect:(CGRect)rect {
-    // Drawing code
-}
-*/
+//- (void)drawRect:(CGRect)rect {
+//    // Drawing code
+//    [_indicatorView setNeedsDisplay];
+//}
+
 
 @end

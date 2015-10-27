@@ -15,13 +15,13 @@
 // 随机色
 #define WHRandomColor WHColor(arc4random_uniform(256), arc4random_uniform(256), arc4random_uniform(256))
 
+#define kScreenHeight ([UIScreen mainScreen].bounds.size.height)
+#define kScreenWidth ([UIScreen mainScreen].bounds.size.width)
+
 #ifdef DEBUG
 #define WHLog(...) NSLog(__VA_ARGS__)
 #else
 #define WHLog(...)
 #endif
-
-//api url
-#define API_SITEINFO @"api/site/info.json"
 
 #endif

@@ -19,15 +19,6 @@ static NSString *const cellId = @"catalogCellId";
     NSArray *_catalogs;
 }
 
-- (instancetype)initWithCatalog:(NSArray *)catalogs frame:(CGRect)frame
-{
-    self = [super init];
-    if(self){
-        _catalogs = catalogs;
-    }
-    return self;
-}
-
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.

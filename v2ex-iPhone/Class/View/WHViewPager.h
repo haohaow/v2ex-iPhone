@@ -7,10 +7,16 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "WHViewPageIndicator.h"
 
+@class WHCatalogModel,WHViewPageIndicator;
 @interface WHViewPager : UIScrollView
-//@property (nonatomic,weak) 
 
-- (instancetype)initWithCatalogs:(NSArray *)catalogs;
+@property (nonatomic,copy) NSMutableArray *titles;
+@property (nonatomic,weak) WHViewPageIndicator *pageIndicator;
+
+//- (instancetype)initWithTitles:(NSArray *)titles;
+- (instancetype)initWithTitleCount:(NSInteger)titleCount;
+- (UIButton *)titleButtonWithTitle:(WHCatalogModel *)title titleAtIndex:(NSInteger)index;
 
 @end

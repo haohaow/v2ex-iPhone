@@ -10,6 +10,4 @@
 
 @interface WHCatalogViewController : UITableViewController
 
-- (instancetype)initWithCatalog:(NSArray *)catalogs;
-
 @end

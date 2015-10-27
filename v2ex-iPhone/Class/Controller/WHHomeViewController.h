@@ -7,9 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "WHViewPagerController.h"
 
-@interface WHHomeViewController : UIViewController
-
-- (instancetype)initWithTitleCatalogs:(NSDictionary *)titleCatalogs;
+@interface WHHomeViewController : WHViewPagerController <WHViewPagerDelegate,WHViewPagerDataSource>
 
 @end

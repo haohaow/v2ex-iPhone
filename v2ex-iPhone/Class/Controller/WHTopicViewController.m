@@ -10,4 +10,9 @@
 
 @implementation WHTopicViewController
 
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
+{
+    return 1;
+}
+
 @end
