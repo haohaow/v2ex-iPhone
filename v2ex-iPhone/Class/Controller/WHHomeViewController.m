@@ -42,13 +42,14 @@
     NSString *titleCatalogsFile = [[NSBundle mainBundle] pathForResource:@"CatalogInfo" ofType:@"plist"];
     
     NSArray *titleCatalogs = [WHTitleCatalogModel objectArrayWithFile:titleCatalogsFile];
-    //    WHLog(@"array:%@",titleCatalogs);
+//    WHLog(@"array:%@",titleCatalogs);
     
     for(WHTitleCatalogModel *titleCatalog in titleCatalogs){
-        [self.titles addObject:titleCatalog];
+        
+        [self.titles addObject:titleCatalog.label];
     }
-    
-    self.datasource = self;
+    self.automaticallyAdjustsScrollViewInsets = NO;
+    self.dataSource = self;
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -62,18 +63,14 @@
 //    });
 }
 
-#pragma mark - viewPagerDelegate
-
-- (NSInteger)numberOfViewPagerControllers:(WHViewPagerController *)viewPagerController
+#pragma mark - viewPagerController dataSource
+- (NSArray *)titlesInViewPagerHeader:(WHViewPagerController *)viewPagerController
 {
-    WHLog(@"self.titles.count:%ld",self.titles.count);
-    return self.titles.count;
+    WHLog(@"titles:%@",_titles);
+    return _titles;
 }
 
-- (WHCatalogModel *)viewPagerController:(WHViewPagerController *)viewPagerController titleAtIndex:(NSInteger)index
-{
-    return self.titles[index];
-}
+
 
 
 

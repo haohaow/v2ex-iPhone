@@ -16,19 +16,17 @@
 
 @protocol WHViewPagerDataSource <NSObject>
 
-@required
-
-- (NSInteger)numberOfViewPagerControllers:(WHViewPagerController *)viewPagerController;
-- (WHCatalogModel *)viewPagerController:(WHViewPagerController *)viewPagerController titleAtIndex:(NSInteger)index;
+- (NSArray *)titlesInViewPagerHeader:(WHViewPagerController *)viewPagerController;
 
 @end
 
 @interface WHViewPagerController : UIViewController <UIScrollViewDelegate>
 
 @property (nonatomic,weak) id<WHViewPagerDelegate> delegate;
-@property (nonatomic,weak) id<WHViewPagerDataSource> datasource;
+@property (nonatomic,weak) id<WHViewPagerDataSource> dataSource;
 
-- (void)reload;
+//标题item根据文字长度sizeTofit 文字改变按钮宽度也会变化
+- (void)reloadData;
 
 @end
 

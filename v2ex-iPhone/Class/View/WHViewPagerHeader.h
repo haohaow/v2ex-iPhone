@@ -8,20 +8,9 @@
 
 #import <UIKit/UIKit.h>
 
-@class WHViewPagerHeader;
-@protocol WHViewPagerHeaderDelegate <NSObject>
-
-@end
-
-@protocol WHViewPagerHeaderDataSouce <NSObject>
-@required
-- (void)numberOfTitles:(WHViewPagerHeader *)viewPagerHeader;
-
-@end
-
 @interface WHViewPagerHeader : UIScrollView
 
-@property (nonatomic,weak) id<WHViewPagerHeaderDataSouce> dataSource;
+@property (nonatomic, weak) UIImageView *indicator;
 
 @end
 

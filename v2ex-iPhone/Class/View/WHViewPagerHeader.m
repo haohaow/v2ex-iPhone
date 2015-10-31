@@ -10,43 +10,16 @@
 #import "UIView+Extension.h"
 #import "WHMacros.h"
 #import "WHTitleCatalogModel.h"
-//头部初始字体
-static const CGFloat titleFontSize = 14;
 
 @implementation WHViewPagerHeader
-{
-    NSMutableArray *_titles;
-    UIImageView *_indicator;
-}
-
-- (void)setDataSource:(id<WHViewPagerHeaderDataSouce>)dataSource
-{
-    _dataSource = dataSource;
-    [self reloadData];
-}
-
 - (instancetype)initWithFrame:(CGRect)frame
 {
     self = [super initWithFrame:frame];
     if(self){
         WHLog(@"initWithFrame");
+        self.backgroundColor = WHRandomColor;
     }
     return self;
-}
-
-- (UIButton *)setupItemWithTitle:(NSString *)title
-{
-    UIButton *headerItem = [UIButton buttonWithType:UIButtonTypeCustom];
-    [headerItem setTitle:title forState:UIControlStateApplication];
-    [headerItem setTitleColor:[UIColor blackColor] forState:UIControlStateNormal];
-    headerItem.titleLabel.font = [UIFont systemFontOfSize:titleFontSize];
-    [headerItem sizeToFit];
-    return headerItem;
-}
-
-- (void)reloadData
-{
-    
 }
 
 //- (NSMutableArray *)titles

@@ -10,99 +10,63 @@
 #import "UIView+Extension.h"
 #import "WHMacros.h"
 
+
 #define VCHeight  (kScreenHeight - 64 - _titleView.height - 49)
+//头部初始字体
+static const CGFloat titleFontSize = 14;
 
 @implementation WHViewPagerController
-{
-    WHViewPagerHeader *_titleView;
-    UIScrollView *_scrollView;
-}
 
-- (void)setDatasource:(id<WHViewPagerDataSource>)datasource
 {
-    _datasource = datasource;
-    [self reload];
-}
-
-- (void)reload
-{
-    NSInteger viewPagerCounts;
-    //numbers of controllers in viewPagerController
-    if([_datasource respondsToSelector:@selector(numberOfViewPagerControllers:)]){
-        viewPagerCounts = [_datasource numberOfViewPagerControllers:self];
-    }
-
-    //set up controllers
-    for (int i = 0;i<viewPagerCounts;i++) {
-        /** scrollViewController */
-        UIViewController *viewController = [[UIViewController alloc] init];
-        viewController.view.backgroundColor = WHRandomColor;
-        [self addChildViewController:viewController];
-        viewController.view.frame = CGRectMake(kScreenWidth * i, 64 + _titleView.height, kScreenWidth, VCHeight);
-        [_scrollView addSubview:viewController.view];
-        if(i==viewPagerCounts - 1){
-            _scrollView.contentSize = CGSizeMake(CGRectGetMaxX(viewController.view.frame), viewController.view.height);
-        }
-    }
-    
-    //init & setup titleView
-    _titleView = [[WHViewPagerHeader alloc] initWithTitleCount:viewPagerCounts];
-    [self.view addSubview:_titleView];
-    self.automaticallyAdjustsScrollViewInsets = NO;
-    
-    if([_datasource respondsToSelector:@selector(viewPagerController:titleAtIndex:)]){
-        for(int i = 0;i<viewPagerCounts;i++){
-            WHCatalogModel *titleModel = [_datasource viewPagerController:self titleAtIndex:i];
-            UIButton *button = [_titleView titleButtonWithTitle:titleModel titleAtIndex:i];
-            //最后一个按钮
-            if(i==viewPagerCounts - 1){
-                _titleView.contentSize = CGSizeMake(CGRectGetMaxX(button.frame), button.height);
-            }else if(i == 0){
-                UIScrollView *pageIndicator = [[UIScrollView alloc] initWithFrame:button.bounds];
-                pageIndicator.backgroundColor = WHRandomColor;
-                pageIndicator.alpha = 0.3;
-                [_titleView addSubview:pageIndicator];
-                _titleView.pageIndicator = pageIndicator;
-            }
-            
-        }
-    }
-    
-    
-}
-
-- (void)setupContentViews
-{
+    WHViewPagerHeader *_viewPagerHeader;
+    NSArray *_titles;
 
 }
 
-- (void)setupTitleViews
+- (void)setDataSource:(id<WHViewPagerDataSource>)dataSource
 {
-    
+    _dataSource = dataSource;
+    [self reloadData];
 }
 
-- (void)viewDidLoad {
+- (void)viewDidLoad
+{
     [super viewDidLoad];
-    _scrollView = [[UIScrollView alloc] initWithFrame:self.view.bounds];
-    _scrollView.delegate = self;
-    _scrollView.bounces = NO;
-    _scrollView.pagingEnabled = YES;
-    _scrollView.showsHorizontalScrollIndicator = YES;
-    [self.view addSubview:_scrollView];
-    
+    _viewPagerHeader = [[WHViewPagerHeader alloc] initWithFrame:CGRectMake(0, 64, kScreenWidth, 44)];
+    [self.view addSubview:_viewPagerHeader];
 }
 
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+- (void)reloadData
 {
-    
-    int page = scrollView.contentOffset.x / _scrollView.width + 0.5;
- 
+    if([_dataSource respondsToSelector:@selector(titlesInViewPagerHeader:)]){
+        _titles = [_dataSource titlesInViewPagerHeader:self];
+        [self setupHeaderWithTitles:_titles];
+    }
 }
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+- (void)setupHeaderWithTitles:(NSArray *)titles
+{
+    UIButton *preBtn;
+    for(NSString *title in titles){
+        UIButton *titleItem = [self titleItemWithTitle:title];
+        titleItem.x = CGRectGetMaxX(preBtn.frame);
+        [_viewPagerHeader addSubview:titleItem];
+        preBtn = titleItem;
+    }
 }
+
+- (UIButton *)titleItemWithTitle:(NSString *)title
+{
+    UIButton *titleItem = [UIButton buttonWithType:UIButtonTypeCustom];
+    [titleItem setTitle:title forState:UIControlStateNormal];
+    [titleItem sizeToFit];
+    [titleItem setTitleColor:WHRandomColor forState:UIControlStateNormal];
+    [titleItem setBackgroundColor:WHRandomColor];
+    titleItem.titleLabel.font = [UIFont systemFontOfSize:titleFontSize];
+    
+    return titleItem;
+}
+
 
 /*
 #pragma mark - Navigation
