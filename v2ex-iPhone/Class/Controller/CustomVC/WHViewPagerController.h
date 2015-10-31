@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "WHViewPager.h"
+#import "WHViewPagerHeader.h"
 
 @class WHViewPagerController;
 @protocol WHViewPagerDelegate <NSObject>
@@ -25,8 +25,8 @@
 
 @interface WHViewPagerController : UIViewController <UIScrollViewDelegate>
 
-@property (nonatomic,strong) id<WHViewPagerDelegate> delegate;
-@property (nonatomic,strong) id<WHViewPagerDataSource> datasource;
+@property (nonatomic,weak) id<WHViewPagerDelegate> delegate;
+@property (nonatomic,weak) id<WHViewPagerDataSource> datasource;
 
 - (void)reload;
 

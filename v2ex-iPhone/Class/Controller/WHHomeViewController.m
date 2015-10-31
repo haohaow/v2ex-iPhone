@@ -10,7 +10,7 @@
 #import "WHMacros.h"
 #import "WHDataManager.h"
 #import "WHLaunchViewController.h"
-#import "WHViewPager.h"
+#import "WHViewPagerHeader.h"
 #import "WHTitleCatalogModel.h"
 #import "WHCatalogViewController.h"
 #import "UIView+Extension.h"
@@ -23,7 +23,7 @@
 @implementation WHHomeViewController
 {
     WHLaunchViewController *_launchViewController;
-    WHViewPager *_viewPager;
+    WHViewPagerHeader *_viewPager;
 }
 
 - (NSMutableArray *)titles
@@ -54,7 +54,7 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-//    present launchViewController only once
+    /** present launchViewController only once */    
 //    static dispatch_once_t onceToken;
 //    dispatch_once(&onceToken, ^{
 //        _launchViewController = [[WHLaunchViewController alloc] init];
