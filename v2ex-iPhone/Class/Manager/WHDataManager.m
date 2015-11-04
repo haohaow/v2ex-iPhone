@@ -10,7 +10,7 @@
 #import "WHMacros.h"
 #import <AFNetworking.h>
 #import "HTMLParser.h"
-#import "WHTitleCatalogModel.h"
+#import "WHTitleModel.h"
 #define API_SITEINFO @"api/site/info.json"
 
 typedef enum{
@@ -138,12 +138,12 @@ static NSString * const baseURLStr = @"http://www.v2ex.com";
     NSArray *aNodes = [cellNode findChildTags:@"a"];
     
     [aNodes enumerateObjectsUsingBlock:^(HTMLNode *node, NSUInteger idx, BOOL *stop) {
-        WHTitleCatalogModel *catalog = [[WHTitleCatalogModel alloc] init];
-        catalog.name = [[node getAttributeNamed:@"href"] stringByReplacingOccurrencesOfString:@"/?tab=" withString:@""];
-        catalog.label = [node contents];
+        WHTitleModel *title = [[WHTitleModel alloc] init];
+        title.name = [[node getAttributeNamed:@"href"] stringByReplacingOccurrencesOfString:@"/?tab=" withString:@""];
+        title.label = [node contents];
 //        WHLog(@"node content:%@",[node contents]);
 //        WHLog(@"node name:%@", [[node getAttributeNamed:@"href"] stringByReplacingOccurrencesOfString:@"/?tab=" withString:@""]);
-        [catalogs addObject:catalog];
+        [catalogs addObject:title];
     }];
 
     return catalogs;
