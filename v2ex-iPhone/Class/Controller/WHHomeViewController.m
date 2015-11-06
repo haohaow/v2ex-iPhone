@@ -9,21 +9,19 @@
 #import "WHHomeViewController.h"
 #import "WHMacros.h"
 #import "WHDataManager.h"
-#import "WHLaunchViewController.h"
-#import "WHViewPagerHeader.h"
-#import "WHTitleCatalogModel.h"
-#import "WHCatalogViewController.h"
+#import "WHTitleModel.h"
 #import "UIView+Extension.h"
 #import "MJExtension.h"
-
-@interface WHHomeViewController ()
+#import "WHPagingScrollView.h"
+#import "WHHomeOneVC.h"
+@interface WHHomeViewController () <WHPagingScrollViewDataSource,WHPagingScrollViewDelegate>
 @property (nonatomic,copy) NSMutableArray *titles;
+@property (nonatomic,copy) NSMutableArray *homeVCs;
 @end
 
 @implementation WHHomeViewController
 {
-    WHLaunchViewController *_launchViewController;
-    WHViewPagerHeader *_viewPager;
+    WHPagingScrollView *_pagingScrollView;
 }
 
 - (NSMutableArray *)titles
@@ -34,47 +32,49 @@
     return _titles;
 }
 
+- (NSMutableArray *)homeVCs
+{
+    if(!_homeVCs){
+        _homeVCs = [NSMutableArray array];
+    }
+    return _homeVCs;
+}
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    
     //titleCatalog data
     NSString *titleCatalogsFile = [[NSBundle mainBundle] pathForResource:@"CatalogInfo" ofType:@"plist"];
-    
-    NSArray *titleCatalogs = [WHTitleCatalogModel objectArrayWithFile:titleCatalogsFile];
-//    WHLog(@"array:%@",titleCatalogs);
-    
-    for(WHTitleCatalogModel *titleCatalog in titleCatalogs){
-        
-        [self.titles addObject:titleCatalog.label];
+    NSArray *titleCatalogs = [WHTitleModel objectArrayWithFile:titleCatalogsFile];
+
+    for(WHTitleModel *titleModel in titleCatalogs){
+        [self.titles addObject:titleModel.label];
+        //create homeViewControllers
+        WHHomeOneVC *homeVC = [[WHHomeOneVC alloc] initWithNodes:titleModel.node];
+        [self.homeVCs addObject:homeVC];
     }
     self.automaticallyAdjustsScrollViewInsets = NO;
-    self.dataSource = self;
+    
+    _pagingScrollView = [[WHPagingScrollView alloc] initWithFrame:self.view.bounds];
+    _pagingScrollView.dataSource = self;
+    _pagingScrollView.delegate = self;
+    [self.view addSubview:_pagingScrollView];
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    /** present launchViewController only once */    
-//    static dispatch_once_t onceToken;
-//    dispatch_once(&onceToken, ^{
-//        _launchViewController = [[WHLaunchViewController alloc] init];
-//        [self presentViewController:_launchViewController animated:NO completion:NULL];
-//    });
 }
 
-#pragma mark - viewPagerController dataSource
-- (NSArray *)titlesInViewPagerHeader:(WHViewPagerController *)viewPagerController
+#pragma mark - WHPagingScrollView dataSourece
+- (NSInteger)numberOfPagesInPagingScrollView:(WHPagingScrollView *)pagingScrollView
 {
-    WHLog(@"titles:%@",_titles);
-    return _titles;
+    return self.titles.count;
 }
 
-
-
-
-
-
-
+- (UIViewController *)pagingScrollView:(WHPagingScrollView *)pagingScrollView viewControllerAtIndex:(NSInteger)pageIndex
+{
+    return self.homeVCs[pageIndex];
+}
 
 @end

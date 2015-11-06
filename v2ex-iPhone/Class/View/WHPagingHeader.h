@@ -13,6 +13,8 @@
 @interface WHPagingHeader : UIView
 @property (nonatomic,copy) NSMutableArray *titleViews;
 @property (nonatomic,strong) UIScrollView *headerScrollView;
+@property (nonatomic,strong) UIImageView *indicator;
+
 @property (nonatomic,weak) id<WHPaingHeaderDelegate> delegate;
 @end
 

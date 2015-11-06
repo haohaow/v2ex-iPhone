@@ -688,7 +688,7 @@ _scrollView.bounces = NO;
 
   CGPoint offset = [self frameForPageAtIndex:pageIndex].origin;
   offset = [self contentOffsetFromPageOffset:offset];
-
+    NSLog(@"%@",NSStringFromCGPoint(offset));
   // The paging scroll view won't actually animate if the offsets are identical.
   animated = animated && !CGPointEqualToPoint(offset, _scrollView.contentOffset);
 

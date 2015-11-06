@@ -7,8 +7,8 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "WHViewPagerController.h"
 
-@interface WHHomeViewController : WHViewPagerController <WHViewPagerDelegate,WHViewPagerDataSource>
+
+@interface WHHomeViewController : UIViewController
 
 @end

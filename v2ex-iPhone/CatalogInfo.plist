@@ -3,7 +3,7 @@
 <plist version="1.0">
 <array>
 	<dict>
-		<key>catalogs</key>
+		<key>node</key>
 		<array>
 			<dict>
 				<key>label</key>
@@ -64,7 +64,7 @@
 		<string>创意</string>
 		<key>name</key>
 		<string>creative</string>
-		<key>catalogs</key>
+		<key>node</key>
 		<array>
 			<dict>
 				<key>name</key>
@@ -88,10 +88,10 @@
 	</dict>
 	<dict>
 		<key>label</key>
-		<string>好玩aaaaaaaa</string>
+		<string>好玩</string>
 		<key>name</key>
 		<string>play</string>
-		<key>catalogs</key>
+		<key>node</key>
 		<array>
 			<dict>
 				<key>name</key>
@@ -193,7 +193,7 @@
 		<string>酷工作</string>
 		<key>name</key>
 		<string>jobs</string>
-		<key>catalogs</key>
+		<key>node</key>
 		<array>
 			<dict>
 				<key>name</key>
@@ -220,7 +220,7 @@
 		<string>交易</string>
 		<key>name</key>
 		<string>deals</string>
-		<key>catalogs</key>
+		<key>node</key>
 		<array>
 			<dict>
 				<key>name</key>
@@ -265,7 +265,7 @@
 		<string>城市</string>
 		<key>name</key>
 		<string>city</string>
-		<key>catalogs</key>
+		<key>node</key>
 		<array>
 			<dict>
 				<key>name</key>
@@ -328,7 +328,7 @@
 		<string>问与答</string>
 		<key>name</key>
 		<string>qna</string>
-		<key>catalogs</key>
+		<key>node</key>
 		<array>
 			<dict>
 				<key>name</key>
@@ -339,7 +339,7 @@
 		</array>
 	</dict>
 	<dict>
-		<key>catalogs</key>
+		<key>node</key>
 		<array>
 			<dict>
 				<key>name</key>
@@ -388,12 +388,6 @@
 		<string>all</string>
 		<key>label</key>
 		<string>全部</string>
-	</dict>
-	<dict>
-		<key>label</key>
-		<string>最热</string>
-		<key>name</key>
-		<string>hot</string>
 	</dict>
 </array>
 </plist>

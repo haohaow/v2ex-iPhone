@@ -8,11 +8,11 @@
 
 #import "AppDelegate.h"
 #import "WHMacros.h"
-#import "WHHomeViewController.h"
+#import "WHMainPageViewController.h"
 #import "WHTopicViewController.h"
 #import "WHFocusViewController.h"
 #import "WHProfileViewController.h"
-#import "WHTitleCatalogModel.h"
+#import "WHTitleModel.h"
 #import "MJExtension.h"
 
 @interface AppDelegate ()
@@ -52,9 +52,9 @@
     hotTopic.title = @"热门";
     UINavigationController *hotTopicNav = [[UINavigationController alloc] initWithRootViewController:hotTopic];
     //版块
-    WHHomeViewController *home = [[WHHomeViewController alloc] init];
-    home.title = @"版块";
-    UINavigationController *homeNav = [[UINavigationController alloc] initWithRootViewController:home];
+    WHMainPageViewController *mainPage = [[WHMainPageViewController alloc] init];
+    mainPage.title = @"版块";
+    UINavigationController *mainPageNav = [[UINavigationController alloc] initWithRootViewController:mainPage];
     //关注
     WHFocusViewController *focus = [[WHFocusViewController alloc] init];
     focus.title = @"我的关注";
@@ -65,7 +65,7 @@
     UINavigationController *profileNav = [[UINavigationController alloc] initWithRootViewController:profile];
     
     UITabBarController *tabBarController = [[UITabBarController alloc] init];
-    tabBarController.viewControllers = @[homeNav,hotTopicNav,focusNav,profileNav];
+    tabBarController.viewControllers = @[mainPageNav,hotTopicNav,focusNav,profileNav];
     
     self.window.rootViewController = tabBarController;
     

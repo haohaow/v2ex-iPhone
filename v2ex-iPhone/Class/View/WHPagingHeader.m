@@ -11,8 +11,9 @@
 #import "WHMacros.h"
 #import "WHTitleModel.h"
 
-#define TITLE_TAG 11000
-
+#define TitleTag 11000
+#define IndicatorHeigh 2;
+#define TitleMargin 15
 @implementation WHPagingHeader
 {
     NSInteger _numberOfPages;
@@ -50,6 +51,10 @@
     _headerScrollView.showsHorizontalScrollIndicator = NO;
     
     [self addSubview:_headerScrollView];
+    
+    _indicator = [[UIImageView alloc] init];
+    _indicator.backgroundColor = WHRandomColor;
+    [_headerScrollView addSubview:_indicator];
 
 }
 
@@ -58,6 +63,7 @@
     [super layoutSubviews];
     
     _numberOfPages = [self.delegate numbersOfTitleInHeader:self];
+    
     for(int i=0;i<_numberOfPages;i++){
         
         UIView *titleView = [self titleViewAtIndex:i];
@@ -67,6 +73,8 @@
     
     _headerScrollView.contentSize = [self contentSizeForPagingScrollView];
     
+    _indicator.frame = [self indicatorFrameAtIndex:0];
+    
 }
 
 - (CGRect)frameAtIndex:(NSInteger)index
@@ -74,14 +82,21 @@
     if(index > 0){
         UIView *preTitleView = (UIView*)self.titleViews[index - 1];
         UIView *titleView = (UIView*)self.titleViews[index];
-        CGRect frame = CGRectMake(CGRectGetMaxX(preTitleView.frame), 0, titleView.width, 44) ;
+        CGRect frame = CGRectMake(CGRectGetMaxX(preTitleView.frame)+TitleMargin, 0, titleView.width, 44) ;
         return frame;
     }else{
         UIView *titleView = (UIView*)self.titleViews[index];
-        CGRect frame = CGRectMake(0, 0, titleView.width, 44);
+        CGRect frame = CGRectMake(TitleMargin, 0, titleView.width, 44);
         return frame;
     }
+}
 
+- (CGRect)indicatorFrameAtIndex:(NSInteger)index
+{
+    CGRect frame = [self frameAtIndex:index];
+    frame.size.height = IndicatorHeigh;
+    frame.origin.y = _headerScrollView.height - IndicatorHeigh;
+    return frame;
 }
 
 - (UIView *)titleViewAtIndex:(NSInteger)index
@@ -93,9 +108,8 @@
     titleButton.titleLabel.font = [UIFont systemFontOfSize:18];
     [titleButton setTitleColor:[UIColor blackColor] forState:UIControlStateSelected];
     [titleButton setTitleColor:[UIColor grayColor] forState:UIControlStateNormal];
-    titleButton.contentEdgeInsets = UIEdgeInsetsMake(20, 15, 20, 15);
     [titleButton sizeToFit];
-    titleButton.tag = TITLE_TAG+index;
+    titleButton.tag = TitleTag+index;
 
     [titleButton addTarget:self action:@selector(clickTitleView:) forControlEvents:UIControlEventTouchUpInside];
     
@@ -111,7 +125,7 @@
 - (void)clickTitleView:(id)sender
 {
     if(_delegate && [_delegate respondsToSelector:@selector(titleView:clickIndex: animated:)]){
-        [_delegate titleView:sender clickIndex:((UIButton*)sender).tag-TITLE_TAG animated:YES];
+        [_delegate titleView:sender clickIndex:((UIButton*)sender).tag-TitleTag animated:YES];
     }
 }
 
