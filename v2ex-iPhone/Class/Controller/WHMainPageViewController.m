@@ -17,15 +17,17 @@
 
 static NSString* const kPageReuseIdentifier = @"MainPageIdentifier";
 
-@interface WHMainPageViewController () <NIPagingScrollViewDataSource,WHPagingViewDelegate,WHPaingHeaderDelegate>
+@interface WHMainPageViewController () <NIPagingScrollViewDataSource,NIPagingScrollViewDelegate,WHPagingViewDelegate,WHPaingHeaderDelegate>
 @property (nonatomic,strong) NSMutableArray *titles;
 @end
 
 @implementation WHMainPageViewController
 {
-    NIPagingScrollView *_pagingScrollView;
+    NIPagingScrollView *_pagingContentView;
     WHPagingHeader *_pagingHeader;
-    CGFloat _headerOffSetX;
+    CGFloat _contentOffSetX;
+    NSInteger _isLeft , _zeroVControl , _indicatorX;
+    CGAffineTransform _indicatorTransform;
 }
 
 - (NSMutableArray *)titles
@@ -39,20 +41,25 @@ static NSString* const kPageReuseIdentifier = @"MainPageIdentifier";
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    _pagingScrollView = [[NIPagingScrollView alloc] initWithFrame:self.view.bounds];
-    _pagingScrollView.dataSource = self;
-    _pagingScrollView.pageMargin = 0;
-    _pagingScrollView.backgroundColor = WHRandomColor;
-    [self.view addSubview:_pagingScrollView];
+    
+    
+    _pagingContentView = [[NIPagingScrollView alloc] initWithFrame:self.view.bounds];
+    _pagingContentView.dataSource = self;
+    _pagingContentView.delegate = self;
+    _pagingContentView.pageMargin = 0;
+    _pagingContentView.backgroundColor = [UIColor whiteColor];
+    [self.view addSubview:_pagingContentView];
     
     // iOS 7-only.
     if ([self respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
         self.edgesForExtendedLayout = UIRectEdgeNone;
     }
-    
-    [_pagingScrollView reloadData];
-    
+    //
     [self setupHeaderView];
+    //根据头部的标题个数，contentView的个数与之相同来加载
+    [_pagingContentView reloadData];
+    
+  
 
 }
 
@@ -67,6 +74,7 @@ static NSString* const kPageReuseIdentifier = @"MainPageIdentifier";
     _pagingHeader = [[WHPagingHeader alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth, 44)];
     _pagingHeader.backgroundColor = nil;
     _pagingHeader.delegate = self;
+
     [self.view addSubview:_pagingHeader];
     
 
@@ -76,7 +84,7 @@ static NSString* const kPageReuseIdentifier = @"MainPageIdentifier";
 
 - (NSInteger)numberOfPagesInPagingScrollView:(NIPagingScrollView *)pagingScrollView {
     // For the sake of this example we'll show a fixed number of pages.
-    return 10;
+    return self.titles.count;
 }
 
 // Similar to UITableViewDataSource, we create each page view on demand as the user is scrolling
@@ -92,10 +100,75 @@ static NSString* const kPageReuseIdentifier = @"MainPageIdentifier";
         page = [[WHPagingView alloc] initWithReuseIdentifier:kPageReuseIdentifier];
     }
     page.delegate = self;
+
     return page;
 }
 
-#pragma mark - UITableView dataSource & delegate
+- (void)pagingScrollViewDidChangePages:(NIPagingScrollView *)pagingScrollView
+{
+    NSInteger index = pagingScrollView.centerPageIndex;
+    [self titleView:_pagingHeader.titleViews[index] moveToTitleAtIndex:index animated:YES];
+
+    _indicatorX = _pagingHeader.indicator.x;
+
+}
+
+#pragma mark - WHPagingView dataSource & delegate
+
+
+- (void)scrollViewWillBeginDragging:(UIScrollView *)scrollView
+{
+    CGPoint v = [scrollView.panGestureRecognizer velocityInView:scrollView];
+    
+    if(v.x < 0){
+        _isLeft = YES;
+        _zeroVControl = YES;
+    }else if(v.x > 0){
+        _isLeft = NO;
+        _zeroVControl = NO;
+    }else{
+        _isLeft = _zeroVControl;
+    }
+    _indicatorTransform = _pagingHeader.indicator.transform;
+    _contentOffSetX = scrollView.contentOffset.x;
+    _indicatorX = _pagingHeader.indicator.x;
+}
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+    CGFloat transX;
+    UIButton* nextBtn,*currentBtn;
+
+    CGFloat percent = (fabs(scrollView.contentOffset.x - _contentOffSetX)/scrollView.width);
+    
+    NSInteger pageIndex = _pagingContentView.centerPageIndex;
+    WHLog(@"pageIndex:%d",pageIndex);
+    if(_isLeft && [_pagingContentView hasNext]){
+        if(pageIndex == _pagingHeader.titleViews.count){
+            nextBtn = _pagingHeader.titleViews[pageIndex];
+            currentBtn = nextBtn;
+        }else{
+            nextBtn = _pagingHeader.titleViews[pageIndex+1];
+            currentBtn = _pagingHeader.titleViews[pageIndex];
+        }
+        _pagingHeader.indicator.x = _indicatorX + (nextBtn.x -currentBtn.x) * percent;
+    }else{
+        if (pageIndex <= 0) {
+            pageIndex = 0;
+            nextBtn = _pagingHeader.titleViews[pageIndex];
+            currentBtn = nextBtn;
+        }else{
+            nextBtn = _pagingHeader.titleViews[pageIndex - 1];
+            currentBtn = _pagingHeader.titleViews[pageIndex];
+        }
+        _pagingHeader.indicator.x = _indicatorX + (nextBtn.x -currentBtn.x) * percent ;
+    }
+
+    transX = ((nextBtn.width- currentBtn.width) / currentBtn.width) * percent;
+    WHLog(@"%f,%f,%f",_contentOffSetX,nextBtn.width- currentBtn.width,transX);
+    _pagingHeader.indicator.transform = CGAffineTransformScale(_indicatorTransform, transX + 1, 1);
+    
+}
 
 - (NSInteger)pagingView:(id)pagingView numberOfSectionsInPage:(NSInteger)pageNumber
 {
@@ -135,6 +208,7 @@ static NSString* const kPageReuseIdentifier = @"MainPageIdentifier";
 
 - (NSInteger)numbersOfTitleInHeader:(WHPagingHeader *)pagingHeader
 {
+    WHLog(@"header count:%ld",self.titles.count);
     return self.titles.count;
 }
 
@@ -143,51 +217,43 @@ static NSString* const kPageReuseIdentifier = @"MainPageIdentifier";
     return self.titles[index];
 }
 
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView
-{
-    _headerOffSetX = scrollView.contentOffset.x;
-}
-
 - (void)titleView:(UIView *)titleView clickIndex:(NSInteger)index animated:(BOOL)animated
 {
+
+    if(index!=_pagingContentView.centerPageIndex){
+        _indicatorTransform = _pagingHeader.indicator.transform;
+        [self titleView:titleView moveToTitleAtIndex:index animated:YES];
+        [_pagingContentView moveToPageAtIndex:index animated:NO];
+
+    }
+    
+}
+
+#pragma mark - private method
+
+- (void)titleView:(UIView *)titleView moveToTitleAtIndex:(NSInteger)index animated:(BOOL)animated
+{
     CGFloat offsetX;
-//    UIButton *currentBtn = (UIButton*)_pagingHeader.titleViews[_pagingScrollView.centerPageIndex];
-//    if(_pagingHeader.headerScrollView.contentOffset.x==0 && currentBtn.centerX<kScreenWidth/2){
-//        offSetX = (titleView.centerX - kScreenWidth/2);
-//    }
+    
     UIButton* titleBtn = (UIButton*)titleView;
     
     CGFloat availableOffsetX = _pagingHeader.headerScrollView.contentSize.width - _pagingHeader.headerScrollView.width;
-   
     
     offsetX = titleBtn.centerX - kScreenWidth/2;
+    
     if(offsetX > availableOffsetX){
         offsetX = availableOffsetX;
     }else if (offsetX < 0.0){
         offsetX = 0.0;
     }
-    [_pagingHeader.headerScrollView setContentOffset:CGPointMake(offsetX,0) animated:YES];
+    
+    [_pagingHeader.headerScrollView setContentOffset:CGPointMake(offsetX,0) animated:animated];
+    
+    _pagingHeader.indicator.width = titleBtn.width;
+    _pagingHeader.indicator.centerX = titleBtn.centerX;
+    
     titleBtn.selected = YES;
-    WHLog(@"clickIndex:%ld,numberOfPages:%ld,centerPageIndex:%ld",index,_pagingScrollView.numberOfPages,_pagingScrollView.centerPageIndex);
-    [_pagingScrollView moveToPageAtIndex:index animated:NO];
 
 }
-
-- (void)moveOffSet
-{
-//    NSInteger startOffsetIndex = (_pagingHeader.width / titleView.width) / 2.0;
-//    if(index < startOffsetIndex){
-//        index = startOffsetIndex;
-//    }else if (index == _pagingHeader.titleViews.count - 1){
-//        index = _pagingHeader.titleViews.count - startOffsetIndex;
-//    }
-//    CGFloat offsetX = (index - startOffsetIndex) * titleView.width;
-//    [_pagingHeader.headerScrollView setContentOffset:CGPointMake(offsetX, 0)];
-//    WHLog(@"startOffsetIndex:%ld,_pagingHeader.width:%f,titleView.width:%f",startOffsetIndex,_pagingHeader.width,titleView.width);
-}
-
-
-
-
 
 @end
