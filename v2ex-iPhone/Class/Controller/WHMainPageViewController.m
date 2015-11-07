@@ -142,7 +142,7 @@ static NSString* const kPageReuseIdentifier = @"MainPageIdentifier";
     CGFloat percent = (fabs(scrollView.contentOffset.x - _contentOffSetX)/scrollView.width);
     
     NSInteger pageIndex = _pagingContentView.centerPageIndex;
-    WHLog(@"pageIndex:%d",pageIndex);
+
     if(_isLeft && [_pagingContentView hasNext]){
         if(pageIndex == _pagingHeader.titleViews.count){
             nextBtn = _pagingHeader.titleViews[pageIndex];
