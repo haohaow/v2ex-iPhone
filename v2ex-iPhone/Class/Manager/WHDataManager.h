@@ -12,11 +12,14 @@
 
 + (instancetype)sharedManager;
 
-- (void)siteInfoSuccess:(void (^)(id result))success failure:(void(^)(NSError *error))failure;
-
 #pragma mark - Get
+- (void)siteInfoSuccess:(void (^)(id result))success failure:(void(^)(NSError *error))failure;
 
 - (void)titleCatalogsSuccess:(void(^)(NSArray *))success
                failure:(void(^)(NSError *error))failure;
+
+- (void)topicWithNodeName:(NSString *)nodeId success:(void(^)(NSArray *))success failure:(void(^)(NSError *error))failure;
+
+- (void)topicLatestAtPage:(NSInteger)page success:(void(^)(NSArray *))success failure:(void(^)(NSError *error))failure;
 
 @end

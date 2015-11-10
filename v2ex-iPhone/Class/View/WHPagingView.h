@@ -18,8 +18,11 @@
 @end
 
 @interface WHPagingView : UIView <NIPagingScrollViewPage,UITableViewDataSource,UITableViewDelegate>
+
+@property (nonatomic,copy) NSArray *nodes;
 @property (nonatomic,strong) UITableView *tableView;
 @property (nonatomic,weak) id<WHPagingViewDelegate> delegate;
+
 - (id)initWithReuseIdentifier:(NSString *)reuseIdentifier;
 
 @end

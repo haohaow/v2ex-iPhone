@@ -12,7 +12,9 @@
 
 @property (nonatomic,copy) NSString *label;
 @property (nonatomic,copy) NSString *name;
-@property (nonatomic,copy) NSArray *node;
+@property (nonatomic,copy) NSArray *nodes;
+
++ (NSArray *)titleCatalogsFromResponseObject:(id)responseObject;
 
 @end
 
@@ -20,7 +22,7 @@
 
 @property (nonatomic,copy) NSString *label;
 @property (nonatomic,copy) NSString *name;
-@property (nonatomic,copy) NSString *header;
-@property (nonatomic,copy) NSString *nodeImageUrl;
+//@property (nonatomic,copy) NSString *header;
+//@property (nonatomic,copy) NSString *nodeImageUrl;
 
 @end

@@ -17,8 +17,12 @@
 
 static NSString* const kPageReuseIdentifier = @"MainPageIdentifier";
 
-@interface WHMainPageViewController () <NIPagingScrollViewDataSource,NIPagingScrollViewDelegate,WHPagingViewDelegate,WHPaingHeaderDelegate>
-@property (nonatomic,strong) NSMutableArray *titles;
+@interface WHMainPageViewController () <NIPagingScrollViewDataSource,NIPagingScrollViewDelegate,
+                                        WHPagingViewDelegate,WHPaingHeaderDelegate>
+
+@property (nonatomic,weak) WHPagingView *pageView;
+@property (nonatomic,copy) NSMutableArray *topics;
+
 @end
 
 @implementation WHMainPageViewController
@@ -28,20 +32,17 @@ static NSString* const kPageReuseIdentifier = @"MainPageIdentifier";
     CGFloat _contentOffSetX;
     NSInteger _isLeft , _zeroVControl , _indicatorX;
     CGAffineTransform _indicatorTransform;
+    NSMutableArray *_title,*_allNodes;
+    
 }
 
-- (NSMutableArray *)titles
-{
-    if(!_titles){
-        _titles = [NSMutableArray array];
-    }
-    return _titles;
-}
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
     
+    _title = [NSMutableArray array];
+    _allNodes = [NSMutableArray array];
     
     _pagingContentView = [[NIPagingScrollView alloc] initWithFrame:self.view.bounds];
     _pagingContentView.dataSource = self;
@@ -54,29 +55,38 @@ static NSString* const kPageReuseIdentifier = @"MainPageIdentifier";
     if ([self respondsToSelector:@selector(setEdgesForExtendedLayout:)]) {
         self.edgesForExtendedLayout = UIRectEdgeNone;
     }
-    //
+    
     [self setupHeaderView];
     //根据头部的标题个数，contentView的个数与之相同来加载
     [_pagingContentView reloadData];
-    
-  
 
 }
+
+
 
 - (void)setupHeaderView
 {
     NSString *titleCatalogsFile = [[NSBundle mainBundle] pathForResource:@"CatalogInfo" ofType:@"plist"];
     NSArray *titleCatalogs = [WHTitleModel objectArrayWithFile:titleCatalogsFile];
-
+    
+    NSMutableArray *allNodeArrs =[NSMutableArray array];
     for(WHTitleModel *titleModel in titleCatalogs){
-        [self.titles addObject:titleModel.label];
+        [_title addObject:titleModel.label];
+        [allNodeArrs addObject:titleModel.nodes];
     }
+
+
+    //解析每一个title下的node数组，存在_allNodes中
+    for(int i=0;i<allNodeArrs.count;i++){
+        NSArray *nodes =[WHNodeModel objectArrayWithKeyValuesArray:allNodeArrs[i]];
+        [_allNodes addObject:nodes];
+    }
+    
     _pagingHeader = [[WHPagingHeader alloc] initWithFrame:CGRectMake(0, 0, kScreenWidth, 44)];
     _pagingHeader.backgroundColor = nil;
     _pagingHeader.delegate = self;
 
     [self.view addSubview:_pagingHeader];
-    
 
 }
 
@@ -84,7 +94,7 @@ static NSString* const kPageReuseIdentifier = @"MainPageIdentifier";
 
 - (NSInteger)numberOfPagesInPagingScrollView:(NIPagingScrollView *)pagingScrollView {
     // For the sake of this example we'll show a fixed number of pages.
-    return self.titles.count;
+    return _title.count;
 }
 
 // Similar to UITableViewDataSource, we create each page view on demand as the user is scrolling
@@ -100,7 +110,7 @@ static NSString* const kPageReuseIdentifier = @"MainPageIdentifier";
         page = [[WHPagingView alloc] initWithReuseIdentifier:kPageReuseIdentifier];
     }
     page.delegate = self;
-
+    
     return page;
 }
 
@@ -108,9 +118,8 @@ static NSString* const kPageReuseIdentifier = @"MainPageIdentifier";
 {
     NSInteger index = pagingScrollView.centerPageIndex;
     [self titleView:_pagingHeader.titleViews[index] moveToTitleAtIndex:index animated:YES];
-
+    
     _indicatorX = _pagingHeader.indicator.x;
-
 }
 
 #pragma mark - WHPagingView dataSource & delegate
@@ -165,7 +174,6 @@ static NSString* const kPageReuseIdentifier = @"MainPageIdentifier";
     }
 
     transX = ((nextBtn.width- currentBtn.width) / currentBtn.width) * percent;
-    WHLog(@"%f,%f,%f",_contentOffSetX,nextBtn.width- currentBtn.width,transX);
     _pagingHeader.indicator.transform = CGAffineTransformScale(_indicatorTransform, transX + 1, 1);
     
 }
@@ -177,10 +185,11 @@ static NSString* const kPageReuseIdentifier = @"MainPageIdentifier";
 
 - (NSInteger)pagingView:(id)pagingView numberOfRowsInPage:(NSInteger)page section:(NSInteger)section
 {
-    return 30;
+    NSArray *nodesByPage = [_allNodes objectAtIndex:page];
+    return nodesByPage.count;
 }
 
-- (UITableViewCell *)pagingView:(WHPagingView *)pagingView cellForRowAtIndexPath:(NSIndexPath *)indexPath pagingIndex:(NSInteger)index
+- (UITableViewCell *)pagingView:(WHPagingView *)pagingView cellForRowAtIndexPath:(NSIndexPath *)indexPath pagingIndex:(NSInteger)page
 {
 
     static NSString *identity = @"UITableViewCell";
@@ -189,7 +198,15 @@ static NSString* const kPageReuseIdentifier = @"MainPageIdentifier";
     if(!cell){
         cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:identity];
     }
-    [[cell textLabel] setText:[NSString stringWithFormat:@"panel %zi section %ld row %ld", index, indexPath.section, indexPath.row+1]];
+
+    NSArray *nodesByPage = [_allNodes objectAtIndex:page];
+
+        WHNodeModel *node = (WHNodeModel *)nodesByPage[indexPath.row];
+
+        [[cell textLabel] setText:[NSString stringWithFormat:@"%@,%@",node.label,node.name]];
+
+    
+    
 
     return cell;
 }
@@ -208,13 +225,12 @@ static NSString* const kPageReuseIdentifier = @"MainPageIdentifier";
 
 - (NSInteger)numbersOfTitleInHeader:(WHPagingHeader *)pagingHeader
 {
-    WHLog(@"header count:%ld",self.titles.count);
-    return self.titles.count;
+    return _title.count;
 }
 
 - (NSString *)pagingHeader:(WHPagingHeader *)pagingHeader titleViewAtIndex:(NSInteger)index
 {
-    return self.titles[index];
+    return _title[index];
 }
 
 - (void)titleView:(UIView *)titleView clickIndex:(NSInteger)index animated:(BOOL)animated
@@ -255,5 +271,7 @@ static NSString* const kPageReuseIdentifier = @"MainPageIdentifier";
     titleBtn.selected = YES;
 
 }
+
+
 
 @end

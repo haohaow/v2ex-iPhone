@@ -8,6 +8,14 @@
 
 #import "WHPagingView.h"
 #import "WHMacros.h"
+#import "MJExtension.h"
+#import "WHDataManager.h"
+#import "WHTopicModel.h"
+
+@interface WHPagingView ()
+@property (nonatomic,copy) NSMutableArray *topics;
+
+@end
 
 @implementation WHPagingView
 
@@ -24,11 +32,18 @@
         [_tableView setDelegate:self];
         [_tableView setDataSource:self];
         [_tableView setScrollsToTop:NO];
-
         self.reuseIdentifier = reuseIdentifier;
     }
     
     return self;
+}
+
+- (NSMutableArray *)topics
+{
+    if(!_topics){
+        _topics = [NSMutableArray array];
+    }
+    return _topics;
 }
 
 - (void)setPageIndex:(NSInteger)pageIndex
@@ -37,13 +52,8 @@
     _tableView.frame = CGRectMake(0, 44, kScreenWidth, kScreenHeight - 49 - 64 - 44);
 }
 
-- (void)setDelegate:(id<WHPagingViewDelegate>)delegate
-{
-    _delegate = delegate;
-    [_tableView reloadData];
-}
-
 #pragma mark tableview
+
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
     if([self.delegate respondsToSelector:@selector(pagingView:numberOfSectionsInPage:)]){

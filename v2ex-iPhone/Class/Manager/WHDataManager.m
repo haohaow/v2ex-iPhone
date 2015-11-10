@@ -9,9 +9,10 @@
 #import "WHDataManager.h"
 #import "WHMacros.h"
 #import <AFNetworking.h>
-#import "HTMLParser.h"
 #import "WHTitleModel.h"
+
 #define API_SITEINFO @"api/site/info.json"
+#define API_LATEST_TOPIC @"api/topics/latest.json"
 
 typedef enum{
     WHRequestMethodGet = 0,
@@ -75,7 +76,7 @@ static NSString * const baseURLStr = @"http://www.v2ex.com";
     //请求
 
     [_manager.requestSerializer setValue:_userAgentMobile forHTTPHeaderField:@"User-Agent"];
-
+    WHLog(@"%@,%@",URIString,mutableParams);
     if(method == WHRequestMethodGet){
       [_manager GET:URIString parameters:mutableParams success:^(NSURLSessionDataTask *task, id responseObject) {
           successHandleBlock(task,responseObject);
@@ -92,6 +93,8 @@ static NSString * const baseURLStr = @"http://www.v2ex.com";
   
 }
 
+#pragma mark private method
+
 - (void)siteInfoSuccess:(void (^)(id result))success failure:(void(^)(NSError *error))failure
 {
     [self requestWithMethod:WHRequestMethodGet URIString:API_SITEINFO params:nil success:^(NSURLSessionDataTask *task, id responseObject) {
@@ -102,56 +105,39 @@ static NSString * const baseURLStr = @"http://www.v2ex.com";
 }
 
 - (void)titleCatalogsSuccess:(void(^)(NSArray *))success
-               failure:(void(^)(NSError *error))failure
+                     failure:(void(^)(NSError *error))failure
 {
     _manager.responseSerializer = [AFHTTPResponseSerializer serializer];
     _manager.responseSerializer.acceptableContentTypes = [NSSet setWithObject:@"text/html"];
-    [self requestWithMethod:WHRequestMethodGet URIString:@"" params:nil success:^(NSURLSessionDataTask *task, id responseObject) {
-        NSArray *nodes = [self titleCatalogsWithResponseObject:responseObject];
+    
+    [self requestWithMethod:WHRequestMethodGet URIString:@"" params:nil success:^(NSURLSessionDataTask *task, id responseObject) {    
+        NSArray *nodes = [WHTitleModel titleCatalogsFromResponseObject:responseObject];
         success(nodes);
     } failure:^(NSURLSessionDataTask *task, NSError *error) {
         failure(error);
     }];
 }
 
-
-#pragma mark private method
-
-- (NSArray *)titleCatalogsWithResponseObject:(id)responseObject
+- (void)topicWithNodeName:(NSString *)nodeName success:(void (^)(NSArray *))success failure:(void (^)(NSError *))failure
 {
-    NSMutableArray *catalogs = [NSMutableArray array];
-    
-    NSString *htmlString = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
-//    WHLog(@"htmlString:%@",htmlString);
-    NSError *error = nil;
-    HTMLParser *parser = [[HTMLParser alloc] initWithString:htmlString error:&error];
-    if(error){
-        WHLog(@"Error: %@",error);
-    }
-    
-    HTMLNode *bodyNode = [parser body];
-    
-    HTMLNode *wrapperDiv = [bodyNode findChildWithAttribute:@"id" matchingName:@"Wrapper" allowPartial:YES];
-    HTMLNode *contentDiv = [wrapperDiv findChildOfClass:@"content"];
-
-    HTMLNode *cellNode = [contentDiv findChildOfClass:@"cell"];
-    NSArray *aNodes = [cellNode findChildTags:@"a"];
-    
-    [aNodes enumerateObjectsUsingBlock:^(HTMLNode *node, NSUInteger idx, BOOL *stop) {
-        WHTitleModel *title = [[WHTitleModel alloc] init];
-        title.name = [[node getAttributeNamed:@"href"] stringByReplacingOccurrencesOfString:@"/?tab=" withString:@""];
-        title.label = [node contents];
-//        WHLog(@"node content:%@",[node contents]);
-//        WHLog(@"node name:%@", [[node getAttributeNamed:@"href"] stringByReplacingOccurrencesOfString:@"/?tab=" withString:@""]);
-        [catalogs addObject:title];
+    NSDictionary *param = @{@"node_name":nodeName};
+    [self requestWithMethod:WHRequestMethodGet URIString:@"api/topics/show.json" params:param success:^(NSURLSessionDataTask *task, id responseObject) {
+        success(responseObject);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failure(error);
     }];
-
-    return catalogs;
 }
 
-
-
-
+- (void)topicLatestAtPage:(NSInteger)page success:(void(^)(NSArray *))success failure:(void(^)(NSError *error))failure
+{
+    NSDictionary *param=@{@"p":@(page)};
+    
+    [self requestWithMethod:WHRequestMethodGet URIString:API_LATEST_TOPIC params:param success:^(NSURLSessionDataTask *task, id responseObject) {
+        success(responseObject);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failure(error);
+    }];
+}
 
 
 
