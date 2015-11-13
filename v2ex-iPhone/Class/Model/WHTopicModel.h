@@ -7,7 +7,9 @@
 //
 
 #import <Foundation/Foundation.h>
-
+#import "WHMemberModel.h"
+#import "WHNodeModel.h"
+#import <UIKit/UIKit.h>
 @interface WHTopicModel : NSObject
 
 @property (nonatomic,copy) NSString *id;
@@ -20,8 +22,10 @@
 @property (nonatomic,copy) NSString *last_modified;
 @property (nonatomic,copy) NSString *last_touched;
 
+@property (nonatomic,strong) WHMemberModel *creater;
+@property (nonatomic,strong) WHNodeModel *node;
+
+@property (nonatomic,assign) CGFloat titleHeight;
 + (NSArray *)topicModelsFromResponseObject:(id)responseObject;
 
 @end
-
-

@@ -14,6 +14,7 @@
 #import "MJExtension.h"
 #import "WHPagingHeader.h"
 #import "UIView+Extension.h"
+#import "WHNodeModel.h"
 
 static NSString* const kPageReuseIdentifier = @"MainPageIdentifier";
 
@@ -203,7 +204,7 @@ static NSString* const kPageReuseIdentifier = @"MainPageIdentifier";
 
         WHNodeModel *node = (WHNodeModel *)nodesByPage[indexPath.row];
 
-        [[cell textLabel] setText:[NSString stringWithFormat:@"%@,%@",node.label,node.name]];
+        [[cell textLabel] setText:[NSString stringWithFormat:@"%@,%@",node.name,node.name]];
 
     
     

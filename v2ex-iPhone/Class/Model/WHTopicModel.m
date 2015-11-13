@@ -11,17 +11,33 @@
 
 @implementation WHTopicModel
 
-- (NSString *)description
-{
-    return [NSString stringWithFormat:@"%@\n%@\n%@\n%@\n%@\n%@\n%@\n%@\n%@\n*********分割线**********",_id,_title,_url,_content,_content_rendered,_replies,_created,_last_modified,_last_touched];
-    
-}
-
 + (NSArray *)topicModelsFromResponseObject:(id)responseObject
 {
     NSMutableArray *models = [NSMutableArray array];
     
     return models;
+}
+
+- (NSString *)created
+{
+    NSDate *timesp = [NSDate dateWithTimeIntervalSince1970:[_created floatValue]];
+    NSDateFormatter *utcDateFormatter = [[NSDateFormatter alloc] init];
+    [utcDateFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC"]];
+    [utcDateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+    NSString *dateString = [utcDateFormatter stringFromDate:timesp];
+
+    return dateString;
+}
+
+- (NSString *)last_modified
+{
+    NSDate *timesp = [NSDate dateWithTimeIntervalSince1970:[_created floatValue]];
+    NSDateFormatter *utcDateFormatter = [[NSDateFormatter alloc] init];
+    [utcDateFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC"]];
+    [utcDateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+    NSString *dateString = [utcDateFormatter stringFromDate:timesp];
+    
+    return dateString;
 }
 
 @end

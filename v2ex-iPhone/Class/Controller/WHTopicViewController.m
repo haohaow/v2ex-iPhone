@@ -13,9 +13,8 @@
 #import "WHTopicModel.h"
 #import "WHTopicCell.h"
 
-static NSString *const cellId = @"cellIdentifier";
 
-@interface WHTopicViewController ()
+@interface WHTopicViewController () <UITableViewDataSource,UITableViewDelegate>
 @property (nonatomic,copy) NSMutableArray *topics;
 @end
 
@@ -36,11 +35,14 @@ static NSString *const cellId = @"cellIdentifier";
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    _tableView = [[UITableView alloc] initWithFrame:self.view.bounds];
-    _tableView.dataSource = self;
-    _tableView.delegate = self;
+    _tableView                 = [[UITableView alloc] initWithFrame:self.view.frame];
+    _tableView.separatorStyle  = UITableViewCellSeparatorStyleNone;
+    _tableView.delegate        = self;
+    _tableView.dataSource      = self;
+    [self.view addSubview:_tableView];
     _page = 1;
     [self loadData];
+
 }
 
 #pragma mark - private method
@@ -48,14 +50,22 @@ static NSString *const cellId = @"cellIdentifier";
 {
     [[WHDataManager sharedManager] topicLatestAtPage:_page success:^(NSArray *result) {
         
-        NSArray *newTopics = [WHTopicModel objectArrayWithKeyValuesArray:result];
+        NSMutableArray *newTopics = [NSMutableArray array];
+
+        for (int i=0; i<result.count; i++) {
+            WHMemberModel *member = [WHMemberModel objectWithKeyValues:[result[i] objectForKey:@"member"]];
+            WHNodeModel *node = [WHNodeModel objectWithKeyValues:[result[i] objectForKey:@"node"]];
+            WHTopicModel *topic = [WHTopicModel objectWithKeyValues:result[i]];
+            topic.creater = member;
+            topic.node = node;
+            [newTopics addObject:topic];
+        }
+
         //将新数据插入到数组最后
         NSRange range = NSMakeRange(self.topics.count, newTopics.count);
         NSIndexSet *indexSet =[NSIndexSet indexSetWithIndexesInRange:range];
         [self.topics insertObjects:newTopics atIndexes:indexSet];
-        
-        WHLog(@"topicModels:%@",self.topics);
-        
+        [_tableView reloadData];
         
     } failure:^(NSError *error) {
         WHLog(@"error:%@",error.description);
@@ -76,12 +86,33 @@ static NSString *const cellId = @"cellIdentifier";
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    WHTopicCell *cell = [tableView dequeueReusableCellWithIdentifier:cellId];
+    static NSString *CellIdentifier = @"CellIdentifier";
+
+    WHTopicCell *cell = (WHTopicCell *)[tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     if(!cell){
-        cell = [[WHTopicCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellId];
+        cell = [[WHTopicCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
     }
+    cell.model = self.topics[indexPath.row];
+
     return cell;
 }
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    WHTopicModel *model = self.topics[indexPath.row];
+    return [WHTopicCell heighWithModel:model];
+}
+
+
+
+
+
+
+
+
+
+
+
 
 
 @end

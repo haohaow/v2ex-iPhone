@@ -41,7 +41,3 @@
     return catalogs;
 }
 @end
-
-@implementation WHNodeModel
-
-@end

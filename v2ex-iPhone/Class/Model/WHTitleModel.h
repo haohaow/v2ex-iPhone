@@ -17,12 +17,3 @@
 + (NSArray *)titleCatalogsFromResponseObject:(id)responseObject;
 
 @end
-
-@interface WHNodeModel : NSObject
-
-@property (nonatomic,copy) NSString *label;
-@property (nonatomic,copy) NSString *name;
-//@property (nonatomic,copy) NSString *header;
-//@property (nonatomic,copy) NSString *nodeImageUrl;
-
-@end

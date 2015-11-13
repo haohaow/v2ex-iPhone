@@ -8,6 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface WHTopicViewController : UITableViewController
+@interface WHTopicViewController : UIViewController
 
 @end
