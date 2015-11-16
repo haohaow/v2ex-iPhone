@@ -13,7 +13,7 @@
 
 #define API_SITEINFO @"api/site/info.json"
 #define API_LATEST_TOPIC @"api/topics/latest.json"
-
+#define API_SHOW_TOPIC @"api/topics/show.json"
 typedef enum{
     WHRequestMethodGet = 0,
     WHRequestMethodPost = 1
@@ -93,7 +93,18 @@ static NSString * const baseURLStr = @"http://www.v2ex.com";
   
 }
 
-#pragma mark private method
+- (void)topicDetailWithId:(NSString *)topicId success:(void(^)(NSArray *))success failure:(void(^)(NSError *error))failure
+{
+    NSDictionary *param = @{@"topicId":topicId};
+    
+    [self requestWithMethod:WHRequestMethodGet URIString:API_SHOW_TOPIC params:param success:^(NSURLSessionDataTask *task, id responseObject) {
+        success(responseObject);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failure(error);
+    }];
+}
+
+
 
 - (void)siteInfoSuccess:(void (^)(id result))success failure:(void(^)(NSError *error))failure
 {
@@ -113,16 +124,6 @@ static NSString * const baseURLStr = @"http://www.v2ex.com";
     [self requestWithMethod:WHRequestMethodGet URIString:@"" params:nil success:^(NSURLSessionDataTask *task, id responseObject) {    
         NSArray *nodes = [WHTitleModel titleCatalogsFromResponseObject:responseObject];
         success(nodes);
-    } failure:^(NSURLSessionDataTask *task, NSError *error) {
-        failure(error);
-    }];
-}
-
-- (void)topicWithNodeName:(NSString *)nodeName success:(void (^)(NSArray *))success failure:(void (^)(NSError *))failure
-{
-    NSDictionary *param = @{@"node_name":nodeName};
-    [self requestWithMethod:WHRequestMethodGet URIString:@"api/topics/show.json" params:param success:^(NSURLSessionDataTask *task, id responseObject) {
-        success(responseObject);
     } failure:^(NSURLSessionDataTask *task, NSError *error) {
         failure(error);
     }];

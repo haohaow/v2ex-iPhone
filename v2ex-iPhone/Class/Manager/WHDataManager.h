@@ -18,8 +18,7 @@
 - (void)titleCatalogsSuccess:(void(^)(NSArray *))success
                failure:(void(^)(NSError *error))failure;
 
-- (void)topicWithNodeName:(NSString *)nodeId success:(void(^)(NSArray *))success failure:(void(^)(NSError *error))failure;
-
 - (void)topicLatestAtPage:(NSInteger)page success:(void(^)(NSArray *))success failure:(void(^)(NSError *error))failure;
 
+- (void)topicDetailWithId:(NSString *)topicId success:(void(^)(NSArray *))success failure:(void(^)(NSError *error))failure;
 @end
