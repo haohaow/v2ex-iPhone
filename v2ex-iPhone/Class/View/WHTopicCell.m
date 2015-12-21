@@ -55,8 +55,8 @@ static CGFloat const kGapWidth = 5.0f;
 {
     
     [super layoutSubviews];
-    _avatarImageView.frame = CGRectMake(5,5, kAvatarHeight, kAvatarHeight);
-    _nodeLabel.origin =  CGPointMake(CGRectGetMaxY(_avatarImageView.frame)+kGapWidth, 5);
+    _avatarImageView.frame = CGRectMake(5,10, kAvatarHeight, kAvatarHeight);
+    _nodeLabel.origin =  CGPointMake(CGRectGetMaxY(_avatarImageView.frame)+kGapWidth, 10);
     _memberLabel.origin = CGPointMake(_nodeLabel.x + _nodeLabel.width + kGapWidth, _nodeLabel.y);
     
     _titleLabel.frame = CGRectMake(_nodeLabel.x, CGRectGetMaxY(_nodeLabel.frame) + kGapHeight, kScreenWidth -20 - kAvatarHeight, _titleHeight);
@@ -64,7 +64,8 @@ static CGFloat const kGapWidth = 5.0f;
     _repliesLabel.origin = CGPointMake(kScreenWidth - 10 - _repliesLabel.width,_nodeLabel.y);
     
     _lastReplyTimeLabel.origin = CGPointMake(_titleLabel.x,  _titleLabel.y + _titleHeight + kGapHeight );
-    _lastReplyMemberLabel.origin = CGPointMake(CGRectGetMaxX(_lastReplyTimeLabel.frame) + 20, _lastReplyTimeLabel.y);
+    
+    _lastReplyMemberLabel.origin = CGPointMake(CGRectGetMaxX(_lastReplyTimeLabel.frame) + 10, _lastReplyTimeLabel.y);
     
     _bottomLineView.frame   = CGRectMake(0, self.height-0.5, kScreenWidth, 0.5);
 
@@ -110,9 +111,9 @@ static CGFloat const kGapWidth = 5.0f;
     [self.contentView addSubview:_lastReplyTimeLabel];
     
     _lastReplyMemberLabel = [[UILabel alloc] init];
-    _lastReplyMemberLabel.backgroundColor = nil;
+    _lastReplyMemberLabel.backgroundColor = [UIColor whiteColor];
     _lastReplyMemberLabel.font = [UIFont systemFontOfSize:kOtherFontSize];
-    _lastReplyMemberLabel.textColor = WHColor(162,162,162);
+    _lastReplyMemberLabel.textColor = WHColor(119,128,136);
     [self.contentView addSubview:_lastReplyMemberLabel];
     
     _repliesLabel = [[UILabel alloc] init];
@@ -136,7 +137,7 @@ static CGFloat const kGapWidth = 5.0f;
 {
     _model = model;
     
-    [_avatarImageView sd_setImageWithURL:[NSURL URLWithString:[@"http:" stringByAppendingString:model.creater.avatar_normal]] placeholderImage:[UIImage imageNamed:@"default_avatar"]];
+    [_avatarImageView sd_setImageWithURL:[NSURL URLWithString:[@"http:" stringByAppendingString:model.creater.avatar_normal==NULL?@"":model.creater.avatar_normal]] placeholderImage:[UIImage imageNamed:@"default_avatar"]];
     
     _nodeLabel.text = model.node.name;
     _nodeLabel.textAlignment = NSTextAlignmentCenter;
@@ -149,12 +150,13 @@ static CGFloat const kGapWidth = 5.0f;
     _titleLabel.text = model.title;
 
     //最后回复时间未取到
-    
-    _lastReplyTimeLabel.text =model.last_modified;
+    _lastReplyTimeLabel.text =model.last_touched;
     [_lastReplyTimeLabel sizeToFit];
     
-    _lastReplyMemberLabel.text = @"最后回复:未知";
-    [_lastReplyMemberLabel sizeToFit];
+    if(model.last_modified){
+        _lastReplyMemberLabel.text = [NSString stringWithFormat:@"最后回复 %@",model.last_modified];
+        [_lastReplyMemberLabel sizeToFit];    
+    }
     
     _repliesLabel.text = model.replies;
     _repliesLabel.textAlignment = NSTextAlignmentCenter;
@@ -168,12 +170,11 @@ static CGFloat const kGapWidth = 5.0f;
 {
     CGFloat titleHeight = [NSString textHeighWithString:model.title Font:[UIFont systemFontOfSize:kTitleFontSize] Width:kScreenWidth -20 - kAvatarHeight];
     //cell上部分高度，以node为标准来计算
-
     CGFloat topHeight = [NSString textHeighWithString:model.node.name Font:[UIFont systemFontOfSize:kOtherFontSize]];
     
     model.titleHeight = titleHeight;
     CGFloat cellHeight = titleHeight + topHeight * 2 + kGapHeight * 4;
-    return cellHeight;
+    return cellHeight+10;
 }
 
 

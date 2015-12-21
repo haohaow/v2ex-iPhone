@@ -12,7 +12,7 @@
 #import "MJExtension.h"
 #import "WHTopicModel.h"
 #import "WHTopicCell.h"
-
+#import "WHTopicDetailViewController.h"
 
 @interface WHTopicViewController () <UITableViewDataSource,UITableViewDelegate>
 @property (nonatomic,copy) NSMutableArray *topics;
@@ -48,28 +48,38 @@
 #pragma mark - private method
 - (void)loadData
 {
-    [[WHDataManager sharedManager] topicLatestAtPage:_page success:^(NSArray *result) {
+    [[WHDataManager sharedManager] topicRecentWithPage:_page succses:^(NSArray *result) {
+
+        [self.topics addObjectsFromArray:[WHTopicModel topicRecentFromResponseObject:result]];
         
-        NSMutableArray *newTopics = [NSMutableArray array];
-
-        for (int i=0; i<result.count; i++) {
-            WHMemberModel *member = [WHMemberModel objectWithKeyValues:[result[i] objectForKey:@"member"]];
-            WHNodeModel *node = [WHNodeModel objectWithKeyValues:[result[i] objectForKey:@"node"]];
-            WHTopicModel *topic = [WHTopicModel objectWithKeyValues:result[i]];
-            topic.creater = member;
-            topic.node = node;
-            [newTopics addObject:topic];
-        }
-
-        //将新数据插入到数组最后
-        NSRange range = NSMakeRange(self.topics.count, newTopics.count);
-        NSIndexSet *indexSet =[NSIndexSet indexSetWithIndexesInRange:range];
-        [self.topics insertObjects:newTopics atIndexes:indexSet];
         [_tableView reloadData];
         
     } failure:^(NSError *error) {
-        WHLog(@"error:%@",error.description);
+        
     }];
+    
+//    [[WHDataManager sharedManager] topicLatestAtPage:_page success:^(NSArray *result) {
+//        
+//        NSMutableArray *newTopics = [NSMutableArray array];
+//
+//        for (int i=0; i<result.count; i++) {
+//            WHMemberModel *member = [WHMemberModel objectWithKeyValues:[result[i] objectForKey:@"member"]];
+//            WHNodeModel *node = [WHNodeModel objectWithKeyValues:[result[i] objectForKey:@"node"]];
+//            WHTopicModel *topic = [WHTopicModel objectWithKeyValues:result[i]];
+//            topic.creater = member;
+//            topic.node = node;
+//            [newTopics addObject:topic];
+//        }
+//
+//        //将新数据插入到数组最后
+//        NSRange range = NSMakeRange(self.topics.count, newTopics.count);
+//        NSIndexSet *indexSet =[NSIndexSet indexSetWithIndexesInRange:range];
+//        [self.topics insertObjects:newTopics atIndexes:indexSet];
+//        [_tableView reloadData];
+//        
+//    } failure:^(NSError *error) {
+//        WHLog(@"error:%@",error.description);
+//    }];
 }
 
 #pragma mark - tableView datasource & delegate
@@ -103,6 +113,14 @@
     return [WHTopicCell heighWithModel:model];
 }
 
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    WHTopicDetailViewController *topicDetail = [[WHTopicDetailViewController alloc] init];
+    topicDetail.model = self.topics[indexPath.row];
+    [self.navigationController pushViewController:topicDetail animated:YES];
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+
+}
 
 
 

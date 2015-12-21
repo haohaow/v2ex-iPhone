@@ -12,7 +12,7 @@
 #import <UIKit/UIKit.h>
 @interface WHTopicModel : NSObject
 
-@property (nonatomic,copy) NSString *id;
+@property (nonatomic,copy) NSString *topicId;
 @property (nonatomic,copy) NSString *title;
 @property (nonatomic,copy) NSString *url;
 @property (nonatomic,copy) NSString *content;
@@ -26,6 +26,6 @@
 @property (nonatomic,strong) WHNodeModel *node;
 
 @property (nonatomic,assign) CGFloat titleHeight;
-+ (NSArray *)topicModelsFromResponseObject:(id)responseObject;
++ (NSArray *)topicRecentFromResponseObject:(id)responseObject;
 
 @end

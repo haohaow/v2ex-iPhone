@@ -10,6 +10,7 @@
 #import "WHMacros.h"
 #import <AFNetworking.h>
 #import "WHTitleModel.h"
+#import "WHTopicModel.h"
 
 #define API_SITEINFO @"api/site/info.json"
 #define API_LATEST_TOPIC @"api/topics/latest.json"
@@ -74,7 +75,6 @@ static NSString * const baseURLStr = @"http://www.v2ex.com";
     //参数
     NSMutableDictionary *mutableParams = [NSMutableDictionary dictionaryWithDictionary:params];
     //请求
-
     [_manager.requestSerializer setValue:_userAgentMobile forHTTPHeaderField:@"User-Agent"];
     WHLog(@"%@,%@",URIString,mutableParams);
     if(method == WHRequestMethodGet){
@@ -93,6 +93,17 @@ static NSString * const baseURLStr = @"http://www.v2ex.com";
   
 }
 
+//网站信息
+- (void)siteInfoSuccess:(void (^)(id result))success failure:(void(^)(NSError *error))failure
+{
+    [self requestWithMethod:WHRequestMethodGet URIString:API_SITEINFO params:nil success:^(NSURLSessionDataTask *task, id responseObject) {
+        success(responseObject);
+    } failure:^(NSURLSessionDataTask *task, NSError *error) {
+        failure(error);
+    }];
+}
+
+//单条主题详情
 - (void)topicDetailWithId:(NSString *)topicId success:(void(^)(NSArray *))success failure:(void(^)(NSError *error))failure
 {
     NSDictionary *param = @{@"topicId":topicId};
@@ -104,12 +115,23 @@ static NSString * const baseURLStr = @"http://www.v2ex.com";
     }];
 }
 
-
-
-- (void)siteInfoSuccess:(void (^)(id result))success failure:(void(^)(NSError *error))failure
+//最近的主题
+- (void)topicRecentWithPage:(NSInteger)page
+                    succses:(void (^)(NSArray *))success
+                    failure:(void(^)(NSError *error))failure
 {
-    [self requestWithMethod:WHRequestMethodGet URIString:API_SITEINFO params:nil success:^(NSURLSessionDataTask *task, id responseObject) {
+    NSDictionary *parameters;
+    if (page) {
+        parameters = @{
+                       @"p": @(page)
+                       };
+    }
+    _manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+    _manager.responseSerializer.acceptableContentTypes = [NSSet setWithObject:@"text/html"];
+    [self requestWithMethod:WHRequestMethodGet URIString:@"recent" params:parameters success:^(NSURLSessionDataTask *task, id responseObject) {
+
         success(responseObject);
+        
     } failure:^(NSURLSessionDataTask *task, NSError *error) {
         failure(error);
     }];

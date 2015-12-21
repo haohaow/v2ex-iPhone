@@ -76,7 +76,6 @@ static NSString* const kPageReuseIdentifier = @"MainPageIdentifier";
         [allNodeArrs addObject:titleModel.nodes];
     }
 
-
     //解析每一个title下的node数组，存在_allNodes中
     for(int i=0;i<allNodeArrs.count;i++){
         NSArray *nodes =[WHNodeModel objectArrayWithKeyValuesArray:allNodeArrs[i]];

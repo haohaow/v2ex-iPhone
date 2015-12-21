@@ -10,6 +10,7 @@
 #import "WHMacros.h"
 #import "WHTitleModel.h"
 #import "MJExtension.h"
+#import "WHNodeModel.h"
 static NSString * const cellId = @"cellId";
 @implementation WHHomeOneVC
 {
@@ -54,7 +55,7 @@ static NSString * const cellId = @"cellId";
     WHNodeModel *node = _nodeModels[indexPath.row];
     
     WHLog(@"catalog:%@",node);
-    cell.textLabel.text = node.label;
+    cell.textLabel.text = node.name;
     cell.detailTextLabel.text = node.name;
     cell.alpha = 0;
     cell.backgroundColor = nil;

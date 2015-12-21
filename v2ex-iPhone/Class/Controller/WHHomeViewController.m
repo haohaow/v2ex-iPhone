@@ -50,7 +50,7 @@
     for(WHTitleModel *titleModel in titleCatalogs){
         [self.titles addObject:titleModel.label];
         //create homeViewControllers
-        WHHomeOneVC *homeVC = [[WHHomeOneVC alloc] initWithNodes:titleModel.node];
+        WHHomeOneVC *homeVC = [[WHHomeOneVC alloc] initWithNodes:titleModel.nodes];
         [self.homeVCs addObject:homeVC];
     }
     self.automaticallyAdjustsScrollViewInsets = NO;

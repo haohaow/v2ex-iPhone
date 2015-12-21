@@ -22,7 +22,7 @@
 {
     //初始化子控制器
     WHTopicViewController *topic = [[WHTopicViewController alloc] init];
-    [self addChildVc:topic title:@"热门" image:@"tabbar_home" selectedImage:@"tabbar_home_selected"];
+    [self addChildVc:topic title:@"最新" image:@"tabbar_home" selectedImage:@"tabbar_home_selected"];
     
 //    WHMainPageViewController *mainPage = [[WHMainPageViewController alloc] init];
 //    [self addChildVc:mainPage title:@"版块" image:@"tabbar_message_center" selectedImage:@"tabbar_message_center_selected"];
